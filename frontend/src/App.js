@@ -12,10 +12,19 @@ function App() {
   const fetchTasks = async () => {
     try {
       const res = await fetch(API_URL);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
       const data = await res.json();
-      setTasks(data);
+      if (Array.isArray(data)) {
+        setTasks(data);
+      } else {
+        console.error('Unexpected response format:', data);
+        setTasks([]);
+      }
     } catch (err) {
       console.error('Error fetching tasks:', err);
+      setTasks([]);
     }
   };
 
