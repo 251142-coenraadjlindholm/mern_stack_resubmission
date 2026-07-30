@@ -1,23 +1,117 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+
+const API_URL = 'http://localhost:5000/tasks';
 
 function App() {
+  const [tasks, setTasks] = useState([]);
+  const [taskName, setTaskName] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('Medium');
+
+  // Load all tasks from the backend
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setTasks(data);
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // Send new task to the backend, then clear the form and refresh the list
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+
+    if (!taskName || !description) return;
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskName, description, priority })
+      });
+
+      setTaskName('');
+      setDescription('');
+      setPriority('Medium');
+
+      fetchTasks();
+    } catch (err) {
+      console.error('Error adding task:', err);
+    }
+  };
+
+  // Delete a task, then refresh the list
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      fetchTasks();
+    } catch (err) {
+      console.error('Error deleting task:', err);
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <h1>Task Manager</h1>
+
+      <form className="task-form" onSubmit={handleAddTask}>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Task Name</label>
+            <input
+              type="text"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+              placeholder="e.g. Finish Assignment"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Priority</label>
+            <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="e.g. Complete the MERN practical"
+            rows={2}
+          />
+        </div>
+
+        <button type="submit" className="add-btn">Add Task</button>
+      </form>
+
+      <h2>Tasks</h2>
+      <div className="task-list">
+        {tasks.length === 0 && <p>No tasks yet.</p>}
+
+        {tasks.map((task) => (
+          <div key={task._id} className={`task-card priority-${task.priority.toLowerCase()}`}>
+            <div className="task-info">
+              <h3>{task.taskName}</h3>
+              <p>{task.description}</p>
+              <span className="priority-badge">{task.priority}</span>
+            </div>
+            <button className="delete-btn" onClick={() => handleDelete(task._id)}>
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
