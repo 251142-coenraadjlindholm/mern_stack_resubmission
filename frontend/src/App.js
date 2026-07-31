@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
+import logo from './Manchester United Logo.png'; // Import the Manchester United logo
 
 const API_URL = 'http://localhost:5000/tasks';
 
+// Main App component for the Task Manager application
 function App() {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState('');
@@ -67,7 +70,8 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Task Manager</h1>
+      <img src={logo} alt="Manchester United Logo" className="logo" />
+      <h1>Manchester United Task Manager</h1>
 
       <form className="task-form" onSubmit={handleAddTask}>
         <div className="form-row">
@@ -77,7 +81,7 @@ function App() {
               type="text"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
-              placeholder="e.g. Finish Assignment"
+              placeholder="e.g. Attend training session"
             />
           </div>
 
@@ -96,7 +100,7 @@ function App() {
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="e.g. Complete the MERN practical"
+            placeholder="e.g. Training session at 5 PM"
             rows={2}
           />
         </div>
@@ -104,6 +108,7 @@ function App() {
         <button type="submit" className="add-btn">Add Task</button>
       </form>
 
+      {/* // Display the list of tasks */}
       <h2>Tasks</h2>
       <div className="task-list">
         {tasks.length === 0 && <p>No tasks yet.</p>}
